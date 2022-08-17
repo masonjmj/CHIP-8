@@ -8,10 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		3D8B355A28AD21DE0066D3E9 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 3D8B355928AD21DE0066D3E9 /* main.c */; };
+		3D8B356728AD3AF00066D3E9 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 3D8B356628AD3AF00066D3E9 /* main.c */; };
+		3D8B356D28AD3FB70066D3E9 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D8B356C28AD3FB70066D3E9 /* libSDL2-2.0.0.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		3D8B355428AD21DE0066D3E9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		3D8B356228AD3AF00066D3E9 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -25,10 +36,22 @@
 /* Begin PBXFileReference section */
 		3D8B355628AD21DE0066D3E9 /* CHIP-8 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "CHIP-8"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8B355928AD21DE0066D3E9 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		3D8B356428AD3AF00066D3E9 /* CHIP-8 Disassembler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "CHIP-8 Disassembler"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D8B356628AD3AF00066D3E9 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		3D8B356C28AD3FB70066D3E9 /* libSDL2-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2-2.0.0.dylib"; path = "../../../../opt/homebrew/Cellar/sdl2/2.0.22/lib/libSDL2-2.0.0.dylib"; sourceTree = "<group>"; };
+		3D8B356E28AD41800066D3E9 /* CHIP-8.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "CHIP-8.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		3D8B355328AD21DE0066D3E9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D8B356D28AD3FB70066D3E9 /* libSDL2-2.0.0.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D8B356128AD3AF00066D3E9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -42,7 +65,9 @@
 			isa = PBXGroup;
 			children = (
 				3D8B355828AD21DE0066D3E9 /* CHIP-8 */,
+				3D8B356528AD3AF00066D3E9 /* CHIP-8 Disassembler */,
 				3D8B355728AD21DE0066D3E9 /* Products */,
+				3D8B356B28AD3FB70066D3E9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -50,6 +75,7 @@
 			isa = PBXGroup;
 			children = (
 				3D8B355628AD21DE0066D3E9 /* CHIP-8 */,
+				3D8B356428AD3AF00066D3E9 /* CHIP-8 Disassembler */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -57,9 +83,26 @@
 		3D8B355828AD21DE0066D3E9 /* CHIP-8 */ = {
 			isa = PBXGroup;
 			children = (
+				3D8B356E28AD41800066D3E9 /* CHIP-8.entitlements */,
 				3D8B355928AD21DE0066D3E9 /* main.c */,
 			);
 			path = "CHIP-8";
+			sourceTree = "<group>";
+		};
+		3D8B356528AD3AF00066D3E9 /* CHIP-8 Disassembler */ = {
+			isa = PBXGroup;
+			children = (
+				3D8B356628AD3AF00066D3E9 /* main.c */,
+			);
+			path = "CHIP-8 Disassembler";
+			sourceTree = "<group>";
+		};
+		3D8B356B28AD3FB70066D3E9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3D8B356C28AD3FB70066D3E9 /* libSDL2-2.0.0.dylib */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -82,6 +125,23 @@
 			productReference = 3D8B355628AD21DE0066D3E9 /* CHIP-8 */;
 			productType = "com.apple.product-type.tool";
 		};
+		3D8B356328AD3AF00066D3E9 /* CHIP-8 Disassembler */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D8B356828AD3AF00066D3E9 /* Build configuration list for PBXNativeTarget "CHIP-8 Disassembler" */;
+			buildPhases = (
+				3D8B356028AD3AF00066D3E9 /* Sources */,
+				3D8B356128AD3AF00066D3E9 /* Frameworks */,
+				3D8B356228AD3AF00066D3E9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "CHIP-8 Disassembler";
+			productName = "CHIP-8 Disassembler";
+			productReference = 3D8B356428AD3AF00066D3E9 /* CHIP-8 Disassembler */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -92,6 +152,9 @@
 				LastUpgradeCheck = 1340;
 				TargetAttributes = {
 					3D8B355528AD21DE0066D3E9 = {
+						CreatedOnToolsVersion = 13.4.1;
+					};
+					3D8B356328AD3AF00066D3E9 = {
 						CreatedOnToolsVersion = 13.4.1;
 					};
 				};
@@ -110,6 +173,7 @@
 			projectRoot = "";
 			targets = (
 				3D8B355528AD21DE0066D3E9 /* CHIP-8 */,
+				3D8B356328AD3AF00066D3E9 /* CHIP-8 Disassembler */,
 			);
 		};
 /* End PBXProject section */
@@ -120,6 +184,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				3D8B355A28AD21DE0066D3E9 /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D8B356028AD3AF00066D3E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D8B356728AD3AF00066D3E9 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,6 +248,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -228,6 +301,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -238,6 +312,36 @@
 		3D8B355E28AD21DE0066D3E9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "CHIP-8/CHIP-8.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2P3Y55LM2H;
+				ENABLE_HARDENED_RUNTIME = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/homebrew/Cellar/sdl2/2.0.22/lib,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3D8B355F28AD21DE0066D3E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "CHIP-8/CHIP-8.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2P3Y55LM2H;
+				ENABLE_HARDENED_RUNTIME = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/homebrew/Cellar/sdl2/2.0.22/lib,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		3D8B356928AD3AF00066D3E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 2P3Y55LM2H;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -245,7 +349,7 @@
 			};
 			name = Debug;
 		};
-		3D8B355F28AD21DE0066D3E9 /* Release */ = {
+		3D8B356A28AD3AF00066D3E9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -272,6 +376,15 @@
 			buildConfigurations = (
 				3D8B355E28AD21DE0066D3E9 /* Debug */,
 				3D8B355F28AD21DE0066D3E9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3D8B356828AD3AF00066D3E9 /* Build configuration list for PBXNativeTarget "CHIP-8 Disassembler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D8B356928AD3AF00066D3E9 /* Debug */,
+				3D8B356A28AD3AF00066D3E9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
