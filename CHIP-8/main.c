@@ -48,7 +48,6 @@ void initializeSDL(void){
 		exit(EXIT_FAILURE);
 	}
 	
-	
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (!window) {
 		printf("Error : %s", SDL_GetError());
@@ -148,7 +147,6 @@ void loop(Chip8* chip8){
 	SDL_Color colors[2] = {{0, 0, 0, 255}, {255, 255, 255, 255}};
 	SDL_SetPaletteColors(surface->format->palette, colors, 0, 2);
 	
-	
 	while (running) {
 		
 		draw(chip8, surface);
@@ -222,7 +220,6 @@ int main(int argc, char * const argv[]) {
 	loop(&chip8);
 	quitSDL();
 
-	
 //	for (int i = 0; i < sizeof(chip8.memory); i++) {
 //		printf("%d %x\n", i, chip8.memory[i]);
 //	}
