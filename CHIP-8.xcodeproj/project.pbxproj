@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3D8B355A28AD21DE0066D3E9 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 3D8B355928AD21DE0066D3E9 /* main.c */; };
-		3D99794028ADC2090040B415 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D8B356C28AD3FB70066D3E9 /* libSDL2-2.0.0.dylib */; };
+		3DAAFADD28ADC41C00584CCE /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D99793E28ADC13A0040B415 /* libSDL2.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,7 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3D99794028ADC2090040B415 /* libSDL2-2.0.0.dylib in Frameworks */,
+				3DAAFADD28ADC41C00584CCE /* libSDL2.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
