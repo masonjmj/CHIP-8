@@ -55,6 +55,7 @@ void initializeSDL(void){
 		exit(EXIT_FAILURE);
 	}
 	
+	// Make sure pixel graphics scale appropriately
 	SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, 0);
 	
 	SDL_RenderSetLogicalSize(renderer, 64, 32);
@@ -63,6 +64,7 @@ void initializeSDL(void){
 
 void quitSDL(void){
 	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
 	window = NULL;
 }
