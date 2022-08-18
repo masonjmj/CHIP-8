@@ -112,6 +112,12 @@ int main(int argc, char * const argv[]) {
 	setupCHIP(&chip8);
 	loadROM(filePath, &chip8);
 	
+
+	if ( SDL_Init(SDL_INIT_EVERYTHING) < 0 )
+	{
+		printf("Error : %s", SDL_GetError());
+		exit(EXIT_FAILURE);
+	}
 	
 	for (int i = 0; i < sizeof(chip8.memory); i++) {
 		printf("%d %x\n", i, chip8.memory[i]);
