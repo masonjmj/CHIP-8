@@ -29,7 +29,7 @@ typedef struct Chip8 {
 SDL_Window* window = NULL;
 //int scale = 10;
 
-void initializeSDL(){
+void initializeSDL(int scale){
 	
 }
 
@@ -56,7 +56,11 @@ void loadROM(char* filePath, Chip8* chip8){
 		exit(EXIT_FAILURE);
 	}
 	
+	// Read contents of the file into memory starting at address 0x200
 	fread(&chip8->memory[0x1FF], romFileSize, 1, romFile);
+	
+	fclose(romFile);
+	romFile = NULL;
 }
 
 inline void unrecognisedOpcode(uint16_t opcode){
