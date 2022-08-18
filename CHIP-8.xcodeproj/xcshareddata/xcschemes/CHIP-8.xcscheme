@@ -56,23 +56,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/jamesmason/Downloads/Fishie.ch8"
+            argument = "/Users/jamesmason/Downloads/IBM\ Logo.ch8"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "path -s 5"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--scale=5 froggy"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--frog"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-s h"
+            argument = "/Users/jamesmason/Downloads/Fishie.ch8"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

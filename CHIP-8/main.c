@@ -28,6 +28,8 @@ typedef struct Chip8 {
 // Globals
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
+SDL_Color background = {0, 0, 0, 255};
+SDL_Color foreground = {255, 255, 255, 255};
 int scale = 10;
 int clockSpeed = 500;
 
@@ -115,14 +117,14 @@ void loadROM(char* filePath, Chip8* chip8){
 	}
 	
 	// Read contents of the file into memory starting at address 0x200
-	fread(&chip8->memory[0x1FF], romFileSize, 1, romFile);
+	fread(&chip8->memory[0x200], romFileSize, 1, romFile);
 	
 	fclose(romFile);
 	romFile = NULL;
 }
 
-inline void unrecognisedOpcode(uint16_t opcode){
-	fprintf(stderr, "Opcode %x unrecognised\n", opcode);
+ void unrecognisedOpcode(uint16_t opcode){
+	fprintf(stderr, "Opcode 0x%04x unrecognised\n", opcode);
 }
 
 static void draw(Chip8 *chip8, SDL_Surface *surface) {
@@ -131,11 +133,74 @@ static void draw(Chip8 *chip8, SDL_Surface *surface) {
 	SDL_UnlockSurface(surface);
 	
 	SDL_RenderClear(renderer);
-	SDL_Texture * screen_texture = SDL_CreateTextureFromSurface(renderer,
-																surface);
-	SDL_RenderCopy(renderer, screen_texture, NULL, NULL);
+	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
-	SDL_DestroyTexture(screen_texture);
+	SDL_DestroyTexture(texture);
+	texture = NULL;
+}
+
+// Instructions
+void x0(Chip8* chip8){
+	
+}
+
+void x1(Chip8* chip8){
+	
+}
+
+void x6(Chip8* chip8){
+	
+}
+
+void x7(Chip8* chip8){
+	
+}
+
+void xA(Chip8* chip8){
+	
+}
+
+void xD(Chip8* chip8){
+	
+}
+
+void cpuCycle(Chip8* chip8){
+	
+	// Fetch
+	chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
+	chip8->pc += 2;
+	
+	// Decode
+	int8_t importantNibble = (chip8->opcode & 0xF000) >> 12;
+
+	// Execute
+	switch (importantNibble) {
+		case 0x0:
+			if (chip8->opcode == 0x00E0) {
+				memset(chip8->display, 0, sizeof(chip8->display));
+			}
+			break;
+		case 0x1:
+			chip8->pc = (chip8->opcode & 0x0FFF);
+			break;
+		case 0x6:
+			chip8->V[((chip8->opcode & 0x0F00) >> 8)] = (chip8->opcode & 0x00FF);
+			break;
+		case 0x7:
+			chip8->V[((chip8->opcode & 0x0F00) >> 8)] += (chip8->opcode & 0x00FF);
+			break;
+		case 0xA:
+			chip8->index = (chip8->opcode & 0x0FFF);
+			break;
+		case 0xD:
+			xD(chip8);
+			break;
+		default:
+			unrecognisedOpcode(chip8->opcode);
+			break;
+	}
+	
 }
 
 void loop(Chip8* chip8){
@@ -144,10 +209,16 @@ void loop(Chip8* chip8){
 	
 	SDL_Surface * surface = SDL_CreateRGBSurfaceWithFormat(SDL_SWSURFACE,
 	   64, 32, 1, SDL_PIXELFORMAT_INDEX8);
-	SDL_Color colors[2] = {{0, 0, 0, 255}, {255, 255, 255, 255}};
+	SDL_Color colors[2] = {background, foreground};
 	SDL_SetPaletteColors(surface->format->palette, colors, 0, 2);
 	
 	while (running) {
+		
+		Uint64 start = SDL_GetPerformanceCounter();
+		
+		for(int i = 0; i < (clockSpeed/60); i++){
+			cpuCycle(chip8);
+		}
 		
 		draw(chip8, surface);
 		
@@ -155,9 +226,18 @@ void loop(Chip8* chip8){
 		if (event.type == SDL_QUIT) {
 			running = false;
 		}
+		
+		Uint64 end = SDL_GetPerformanceCounter();
+		
+		float elapsed = (end - start) / (float) SDL_GetPerformanceFrequency();
+		
+		float elapsedMS = elapsed * 1000.0f;
+		
+		SDL_Delay(floor(16.666f - elapsedMS));
 	}
 	
 	SDL_FreeSurface(surface);
+	surface = NULL;
 }
 
 static void handleOptions(int argc, char *const *argv, char **filePath) {
