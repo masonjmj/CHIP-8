@@ -123,8 +123,9 @@ void loadROM(char* filePath, Chip8* chip8){
 	romFile = NULL;
 }
 
- void unrecognisedOpcode(uint16_t opcode){
+void unrecognisedOpcode(uint16_t opcode){
 	fprintf(stderr, "Opcode 0x%04x unrecognised\n", opcode);
+	exit(EXIT_FAILURE);
 }
 
 static void draw(Chip8 *chip8, SDL_Surface *surface) {
@@ -142,56 +143,102 @@ static void draw(Chip8 *chip8, SDL_Surface *surface) {
 
 // Instructions
 void x0(Chip8* chip8){
-	
+	switch (chip8->opcode) {
+			// Clear screen
+		case 0x00E0:
+			memset(chip8->display, 0, sizeof(chip8->display));
+			break;
+			
+		default:
+			unrecognisedOpcode(chip8->opcode);
+			break;
+	}
 }
 
 void x1(Chip8* chip8){
-	
+	// 1NNN - Jump to address NNN
+	chip8->pc = (chip8->opcode & 0x0FFF);
 }
 
 void x6(Chip8* chip8){
-	
+	// 6XNN - Set register VX to value NN
+	chip8->V[((chip8->opcode & 0x0F00) >> 8)] = (chip8->opcode & 0x00FF);
 }
 
 void x7(Chip8* chip8){
-	
+	// 7XNN - Add value NN to register VX
+	chip8->V[((chip8->opcode & 0x0F00) >> 8)] += (chip8->opcode & 0x00FF);
 }
 
 void xA(Chip8* chip8){
-	
+	// ANNN - Set Index register to address NNN
+	chip8->index = (chip8->opcode & 0x0FFF);
 }
 
 void xD(Chip8* chip8){
+	// DXYN - Draw a sprite N pixels tall from the index register at position
+	// VX, VY
+	int8_t X = chip8->V[(chip8->opcode & 0x0F00) >> 8] % 64;
+	int8_t Y = chip8->V[(chip8->opcode & 0x00F0) >> 4] % 32;
+	int8_t N = chip8->opcode & 0x000F;
 	
+	// Set VF to 0 to reset flag
+	chip8->V[0xF] = 0;
+	
+	for (int row = 0; row < N; row++) {
+		int8_t pixelByte = chip8->memory[chip8->index + row];
+		
+		// Break if we reach the bottom of the screen
+		if (Y + row > 31) {
+			break;
+		}
+		
+		for (int col = 0; col < 8; col++) {
+			// Break if we reach the right edge of the screen
+			if (X + col > 63) {
+				break;
+			}
+			
+			// Read the bit corresponding to the current position in the
+			// sprite we're drawing
+			bool pixel = (pixelByte & (0x80 >> col)) >> (7 - col);
+			bool* displayPixel = &chip8->display[(X + col) + ((Y + row) * 64)];
+			// If bit is already being displayed then turn it on and set flag
+			if (pixel && *displayPixel) {
+				*displayPixel = false;
+				chip8->V[0xF] = 1;
+			// If bit is not being displayed, turn it on
+			} else if (pixel && !*displayPixel){
+				*displayPixel = true;
+			}
+		}
+	}
 }
 
 void cpuCycle(Chip8* chip8){
-	
 	// Fetch
 	chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
 	chip8->pc += 2;
 	
 	// Decode
 	int8_t importantNibble = (chip8->opcode & 0xF000) >> 12;
-
+	
 	// Execute
 	switch (importantNibble) {
 		case 0x0:
-			if (chip8->opcode == 0x00E0) {
-				memset(chip8->display, 0, sizeof(chip8->display));
-			}
+			x0(chip8);
 			break;
 		case 0x1:
-			chip8->pc = (chip8->opcode & 0x0FFF);
+			x1(chip8);
 			break;
 		case 0x6:
-			chip8->V[((chip8->opcode & 0x0F00) >> 8)] = (chip8->opcode & 0x00FF);
+			x6(chip8);
 			break;
 		case 0x7:
-			chip8->V[((chip8->opcode & 0x0F00) >> 8)] += (chip8->opcode & 0x00FF);
+			x7(chip8);
 			break;
 		case 0xA:
-			chip8->index = (chip8->opcode & 0x0FFF);
+			xA(chip8);
 			break;
 		case 0xD:
 			xD(chip8);
@@ -200,7 +247,6 @@ void cpuCycle(Chip8* chip8){
 			unrecognisedOpcode(chip8->opcode);
 			break;
 	}
-	
 }
 
 void loop(Chip8* chip8){
@@ -208,7 +254,7 @@ void loop(Chip8* chip8){
 	SDL_Event event;
 	
 	SDL_Surface * surface = SDL_CreateRGBSurfaceWithFormat(SDL_SWSURFACE,
-	   64, 32, 1, SDL_PIXELFORMAT_INDEX8);
+														   64, 32, 1, SDL_PIXELFORMAT_INDEX8);
 	SDL_Color colors[2] = {background, foreground};
 	SDL_SetPaletteColors(surface->format->palette, colors, 0, 2);
 	
@@ -216,6 +262,8 @@ void loop(Chip8* chip8){
 		
 		Uint64 start = SDL_GetPerformanceCounter();
 		
+		// Determine how many times to cycle the cpu in order to match the
+		// desired clock speed at a refresh rate of 60fps
 		for(int i = 0; i < (clockSpeed/60); i++){
 			cpuCycle(chip8);
 		}
@@ -228,11 +276,9 @@ void loop(Chip8* chip8){
 		}
 		
 		Uint64 end = SDL_GetPerformanceCounter();
-		
 		float elapsed = (end - start) / (float) SDL_GetPerformanceFrequency();
-		
 		float elapsedMS = elapsed * 1000.0f;
-		
+		// Wait until it's time for the next frame
 		SDL_Delay(floor(16.666f - elapsedMS));
 	}
 	
@@ -284,7 +330,7 @@ static void handleOptions(int argc, char *const *argv, char **filePath) {
 int main(int argc, char * const argv[]) {
 	
 	char* filePath;
-
+	
 	handleOptions(argc, argv, &filePath);
 	
 	Chip8 chip8;
@@ -299,11 +345,11 @@ int main(int argc, char * const argv[]) {
 	initializeSDL();
 	loop(&chip8);
 	quitSDL();
-
-//	for (int i = 0; i < sizeof(chip8.memory); i++) {
-//		printf("%d %x\n", i, chip8.memory[i]);
-//	}
-//
+	
+	//	for (int i = 0; i < sizeof(chip8.memory); i++) {
+	//		printf("%d %x\n", i, chip8.memory[i]);
+	//	}
+	//
 	
 	return EXIT_SUCCESS;
 }
