@@ -144,7 +144,7 @@ static void draw(Chip8 *chip8, SDL_Surface *surface) {
 // Instructions
 void x0(Chip8* chip8){
 	switch (chip8->opcode) {
-			// Clear screen
+		// Clear screen
 		case 0x00E0:
 			memset(chip8->display, 0, sizeof(chip8->display));
 			break;
@@ -160,6 +160,13 @@ void x1(Chip8* chip8){
 	chip8->pc = (chip8->opcode & 0x0FFF);
 }
 
+void x4(Chip8* chip8){
+	// 4XNN - Skips the next instruction if VX doesn't value NN
+	if (chip8->V[(chip8->opcode & 0x0F00) >> 8] != (chip8->opcode & 0x00FF)) {
+		chip8->pc += 2;
+	}
+}
+
 void x6(Chip8* chip8){
 	// 6XNN - Set register VX to value NN
 	chip8->V[((chip8->opcode & 0x0F00) >> 8)] = (chip8->opcode & 0x00FF);
@@ -168,6 +175,19 @@ void x6(Chip8* chip8){
 void x7(Chip8* chip8){
 	// 7XNN - Add value NN to register VX
 	chip8->V[((chip8->opcode & 0x0F00) >> 8)] += (chip8->opcode & 0x00FF);
+}
+
+void x8(Chip8* chip8){
+	int8_t code = chip8->opcode & 0x00F;
+	int8_t* VX = chip8->V[chip8->opcode & 0x0F00] >> 8;
+	int8_t VY = chip8->V[(chip8->opcode & 0x00F0) >> 4];
+
+	switch (code) {
+
+		default:
+			unrecognisedOpcode(chip8->opcode);
+			break;
+	}
 }
 
 void xA(Chip8* chip8){
@@ -215,6 +235,23 @@ void xD(Chip8* chip8){
 	}
 }
 
+void xF(Chip8* chip8){
+	int8_t code = chip8->opcode & 0x00FF;
+	int8_t VX = chip8->V[(chip8->opcode & 0x0F00) >> 8];
+	
+	switch (code) {
+		// FX1E - Add VX to index register
+		case 0x1E:
+			chip8->index += VX;
+			// Set VF if index overflows addressable range
+			chip8->V[0xF] = chip8->index > 0x1000;
+			break;
+			
+		default:
+			unrecognisedOpcode(chip8->opcode);
+			break;
+	}
+}
 void cpuCycle(Chip8* chip8){
 	// Fetch
 	chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
@@ -231,6 +268,9 @@ void cpuCycle(Chip8* chip8){
 		case 0x1:
 			x1(chip8);
 			break;
+		case 0x4:
+			x4(chip8);
+			break;
 		case 0x6:
 			x6(chip8);
 			break;
@@ -242,6 +282,9 @@ void cpuCycle(Chip8* chip8){
 			break;
 		case 0xD:
 			xD(chip8);
+			break;
+		case 0xF:
+			xF(chip8);
 			break;
 		default:
 			unrecognisedOpcode(chip8->opcode);
@@ -266,6 +309,14 @@ void loop(Chip8* chip8){
 		// desired clock speed at a refresh rate of 60fps
 		for(int i = 0; i < (clockSpeed/60); i++){
 			cpuCycle(chip8);
+		}
+		
+		if (chip8->delay > 0) {
+			chip8->delay--;
+		}
+		
+		if (chip8->sound > 0) {
+			chip8->sound--;
 		}
 		
 		draw(chip8, surface);
@@ -305,8 +356,12 @@ static void handleOptions(int argc, char *const *argv, char **filePath) {
 				}
 				break;
 			case 'c':
-				if (atoi(optarg) != 0) {
+				if (atoi(optarg) >= 60) {
 					clockSpeed = atoi(optarg);
+				} else if (atoi(optarg) > 0 && atoi(optarg) < 60){
+					// If clockspeed is less than 60 manually set it so that
+					// at least one cycle happens per frame
+					clockSpeed = 60;
 				} else {
 					fprintf(stderr, "Clock must be a non-zero integer\n");
 					exit(EXIT_FAILURE);
@@ -337,19 +392,9 @@ int main(int argc, char * const argv[]) {
 	setupCHIP(&chip8);
 	loadROM(filePath, &chip8);
 	
-	for (int i = 0; i < (64*32); i++) {
-		if (i % 7 == 0) {
-			chip8.display[i] = true;
-		}
-	}
 	initializeSDL();
 	loop(&chip8);
 	quitSDL();
-	
-	//	for (int i = 0; i < sizeof(chip8.memory); i++) {
-	//		printf("%d %x\n", i, chip8.memory[i]);
-	//	}
-	//
 	
 	return EXIT_SUCCESS;
 }
