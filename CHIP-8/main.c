@@ -178,12 +178,24 @@ void x7(Chip8* chip8){
 }
 
 void x8(Chip8* chip8){
-	int8_t code = chip8->opcode & 0x00F;
-	int8_t* VX = chip8->V[chip8->opcode & 0x0F00] >> 8;
-	int8_t VY = chip8->V[(chip8->opcode & 0x00F0) >> 4];
+	uint8_t code = chip8->opcode & 0x000F;
+	uint8_t* VX = &chip8->V[(chip8->opcode & 0x0F00)  >> 8];
+	uint8_t VY = chip8->V[(chip8->opcode & 0x00F0) >> 4];
 
 	switch (code) {
-
+		// 8XY0 - Set VX to VY
+		case 0x0:
+			*VX = VY;
+			break;
+		// 8XY2 - Place the result of a bitwise and on VX and VY into VX
+		case 0x2:
+			*VX &= VY;
+			break;
+		// 8XY4 - Add VX and VY and put it in VX. Set VF if it overflows
+		case 0x4:
+			chip8->V[0xF] =  ((*VX + VY) > 0xFF);
+			*VX += VY;
+			break;
 		default:
 			unrecognisedOpcode(chip8->opcode);
 			break;
@@ -198,15 +210,15 @@ void xA(Chip8* chip8){
 void xD(Chip8* chip8){
 	// DXYN - Draw a sprite N pixels tall from the index register at position
 	// VX, VY
-	int8_t X = chip8->V[(chip8->opcode & 0x0F00) >> 8] % 64;
-	int8_t Y = chip8->V[(chip8->opcode & 0x00F0) >> 4] % 32;
-	int8_t N = chip8->opcode & 0x000F;
+	uint8_t X = chip8->V[(chip8->opcode & 0x0F00) >> 8] % 64;
+	uint8_t Y = chip8->V[(chip8->opcode & 0x00F0) >> 4] % 32;
+	uint8_t N = chip8->opcode & 0x000F;
 	
 	// Set VF to 0 to reset flag
 	chip8->V[0xF] = 0;
 	
 	for (int row = 0; row < N; row++) {
-		int8_t pixelByte = chip8->memory[chip8->index + row];
+		uint8_t pixelByte = chip8->memory[chip8->index + row];
 		
 		// Break if we reach the bottom of the screen
 		if (Y + row > 31) {
@@ -236,13 +248,32 @@ void xD(Chip8* chip8){
 }
 
 void xF(Chip8* chip8){
-	int8_t code = chip8->opcode & 0x00FF;
-	int8_t VX = chip8->V[(chip8->opcode & 0x0F00) >> 8];
+	uint8_t code = chip8->opcode & 0x00FF;
+	uint8_t* VX = &chip8->V[(chip8->opcode & 0x0F00) >> 8];
 	
+	bool found = false;
 	switch (code) {
+		// FX0A - Get pressed key and put it in VX
+		case 0x0A:
+			found = false;
+			for(int i = 0; i < 0x10;i++) {
+				if(chip8->keypad[i]) {
+					*VX = i;
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				chip8->pc -= 2;
+			}
+			break;
+		// FX18 - Set the sound timer to the value in VX
+		case 0x18:
+			chip8->sound = *VX;
+			break;
 		// FX1E - Add VX to index register
 		case 0x1E:
-			chip8->index += VX;
+			chip8->index += *VX;
 			// Set VF if index overflows addressable range
 			chip8->V[0xF] = chip8->index > 0x1000;
 			break;
@@ -252,13 +283,14 @@ void xF(Chip8* chip8){
 			break;
 	}
 }
+	
 void cpuCycle(Chip8* chip8){
 	// Fetch
 	chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
 	chip8->pc += 2;
 	
 	// Decode
-	int8_t importantNibble = (chip8->opcode & 0xF000) >> 12;
+	uint8_t importantNibble = (chip8->opcode & 0xF000) >> 12;
 	
 	// Execute
 	switch (importantNibble) {
@@ -277,6 +309,9 @@ void cpuCycle(Chip8* chip8){
 		case 0x7:
 			x7(chip8);
 			break;
+		case 0x8:
+			x8(chip8);
+			break;
 		case 0xA:
 			xA(chip8);
 			break;
@@ -289,6 +324,22 @@ void cpuCycle(Chip8* chip8){
 		default:
 			unrecognisedOpcode(chip8->opcode);
 			break;
+	}
+}
+
+const int keymap[16] = {
+	SDL_SCANCODE_1,SDL_SCANCODE_2,SDL_SCANCODE_3,SDL_SCANCODE_4,
+	SDL_SCANCODE_Q,SDL_SCANCODE_W,SDL_SCANCODE_E,SDL_SCANCODE_R,
+	SDL_SCANCODE_A,SDL_SCANCODE_S,SDL_SCANCODE_D,SDL_SCANCODE_F,
+	SDL_SCANCODE_Z,SDL_SCANCODE_X,SDL_SCANCODE_C,SDL_SCANCODE_V
+};
+
+void checkKeyboard(Chip8* chip8){
+	SDL_PumpEvents();
+	const uint8_t* keyboard = SDL_GetKeyboardState(NULL);
+	
+	for(int i = 0; i < 0x10;i++) {
+		chip8->keypad[i] = keyboard[keymap[i]];
 	}
 }
 
@@ -318,6 +369,8 @@ void loop(Chip8* chip8){
 		if (chip8->sound > 0) {
 			chip8->sound--;
 		}
+		
+		checkKeyboard(chip8);
 		
 		draw(chip8, surface);
 		
