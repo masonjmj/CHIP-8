@@ -7,10 +7,10 @@
 
 #include <SDL2/SDL.h>
 #include <getopt.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 typedef struct Chip8 {
 	uint8_t memory[4096];  // 4kB RAM
